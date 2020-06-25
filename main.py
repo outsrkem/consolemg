@@ -12,6 +12,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)  # 实例化db对象
 
 
+
+
 if __name__ == '__main__':
     from application.user import *
     app.register_blueprint(user)
