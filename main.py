@@ -11,8 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@10.10.10.24
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)  # 实例化db对象
 
-
-
+@app.route('/aaa')
+def aaa():
+    return render_template('console.html')
 
 if __name__ == '__main__':
     from application.user import *
