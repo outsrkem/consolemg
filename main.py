@@ -12,10 +12,33 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)  # 实例化db对象
 
 @app.route('/aaa')
-def aaa():
-    return render_template('console.html')
+def aaaa():
+    return render_template('overview.html')
+@app.route('/bbb')
+def bbb():
+    return render_template('bbb.html')
+
+@app.before_request
+def before():
+    url = request.path
+    url_list = ['/login']
+    if url in url_list:
+        username = request.cookies.get('username')
+        password = request.cookies.get('password')
+
+        if username != None and password != None:
+            user = Users()
+            result = user.find_by_username(username)
+            if len(result) == 1 and user.find_passwd(result[0].USERID)[0].PASSWD==password:
+                session['islogin'] = 'true'
+                session['userid'] = result[0].USERID
+                session['username'] = username
+
+
 
 if __name__ == '__main__':
+    from application.index import *
+    app.register_blueprint(index)
     from application.user import *
     app.register_blueprint(user)
     app.run(debug=app.config['DEBUG'])
