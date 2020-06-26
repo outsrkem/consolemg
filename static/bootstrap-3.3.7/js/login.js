@@ -20,7 +20,7 @@ function doLogin(e) {
         } else if (data == "login-error") {
             alert("登录失败，请检查用户名或密码是否正确。")
         } else {
-            alert("系统异常，联系管理员")
+            alert(param)
         }
     });
 }

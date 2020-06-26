@@ -34,14 +34,14 @@ def login():
             response.set_cookie('password', password, max_age=30*24*3600)
             return response
         else:
-            return 'login-error'
+            return 'login-errora'
 
 # 注销登录
 @user.route('/logout')
 def logout():
     session.clear()
     response = make_response('注销登录并重定向', 302)
-    response.headers['location'] = url_for('index.red')
+    response.headers['location'] = url_for('index.f_login')
     # 清空cookie，下面2条一样的效果，都是清空cookie
     response.delete_cookie('username')  # 删除cookie
     response.set_cookie('password', '',max_age=0)  # 设置cookie保存时间为0，即马上过期，效果和删除一样

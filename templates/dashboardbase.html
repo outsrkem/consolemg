@@ -7,10 +7,13 @@
     <title>Dashboard</title>
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7/css/bootstrap.min.css"/>
+    <link rel="icon" type="image/x-icon" href="/img/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7/css/dashboard.css">
     <script type="text/javascript" src="/jquery-3.4.1/jquery-3.4.1.min.js"></script>
     <script type="text/javascript" src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <style type="text/css">
+    </style>
 </head>
 <body>
 
@@ -44,8 +47,8 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="{% block nav_a_active %}{% endblock %}"><a href="/aaa">Overview</a></li>
-                <li class="{% block nav_b_active %}{% endblock %}"><a href="/bbb">Reports</a></li>
+                <li class="{% block nav_a_active %}{% endblock %}"><a href="/">概况</a></li>
+                <li class="{% block nav_link_active %}{% endblock %}"><a href="/link">快捷导航</a></li>
                 <li class="{% block nav_c_active %}{% endblock %}"><a href="#">Analytics</a></li>
                 <li class="{% block nav_d_active %}{% endblock %}"><a href="#">Export</a></li>
                 <li class="{% block nav_e_active %}{% endblock %}"><a href="">Nav item</a></li>
