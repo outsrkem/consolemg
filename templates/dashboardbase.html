@@ -26,7 +26,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">控制台</a>
+            <li id="datetime" class="navbar-brand" style="list-style-type:none;"></li>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -37,6 +37,7 @@
             </ul>
 
             <form class="navbar-form navbar-right">
+
                 <input type="text" class="form-control" placeholder="Search...">
             </form>
         </div>
@@ -49,12 +50,6 @@
             <ul class="nav nav-sidebar">
                 <li class="{% block nav_a_active %}{% endblock %}"><a href="/">概况</a></li>
                 <li class="{% block nav_link_active %}{% endblock %}"><a href="/link">快捷导航</a></li>
-                <li class="{% block nav_c_active %}{% endblock %}"><a href="#">Analytics</a></li>
-                <li class="{% block nav_d_active %}{% endblock %}"><a href="#">Export</a></li>
-                <li class="{% block nav_e_active %}{% endblock %}"><a href="">Nav item</a></li>
-                <li class="{% block nav_f_active %}{% endblock %}"><a href="">Nav item again</a></li>
-                <li class="{% block nav_g_active %}{% endblock %}"><a href="">One more nav</a></li>
-                <li class="{% block nav_h_active %}{% endblock %}"><a href="">Another nav item</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -64,6 +59,17 @@
         </div>
     </div>
 </div>
-
+<script>
+    var dnow = new Date();
+    var datetime;
+    dyear = dnow.getFullYear();
+    dmonth = dnow.getMonth();
+    ddate = dnow.getDate();
+    dday = dnow.getDay();
+    dhours = dnow.getHours();
+    datetime = dyear + " 年 " + (dmonth + 1) + " 月 " + ddate + " 日 " + " • " + "星期" + '日一二三四五六'.charAt(dday);
+    //document.write(s);
+    document.getElementById("datetime").innerHTML = datetime;
+</script>
 </body>
 </html>

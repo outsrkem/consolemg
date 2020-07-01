@@ -17,7 +17,6 @@ class Users(DBase):
 
     def find_passwd(self, USERID):
         result = dbsession.query(Passwd).filter_by(USERID=USERID).all()
-        print(result)
         return result
 
 if __name__ == '__main__':

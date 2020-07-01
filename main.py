@@ -9,6 +9,8 @@ app.config.from_object('settings')
 app.config['SECRET_KEY'] = 'wderqeyJ2Y29kZSI6ImxkbG4ifQ.Xr-Lbg.ojkAcx7BZx7590luvEIvhYASA_8'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@10.10.10.24:3306/consolemg?charset=utf8'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_POOL_SIZE'] = 100
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 2
 db = SQLAlchemy(app)  # 实例化db对象
 
 
@@ -29,6 +31,7 @@ def before():
             if len(result) == 1 and user.find_passwd(result[0].USERID)[0].PASSWD==password:
                 session['islogin'] = 'true'
                 session['userid'] = result[0].USERID
+                session['role'] = result[0].ROLE
                 session['username'] = username
         else:
             return redirect('/login')
@@ -37,6 +40,13 @@ def before():
 @app.route('/aaa')
 def aaaa():
     return render_template('overview.html')
+
+
+# 接口测试
+@app.after_request
+def foot_log(environ):
+    print("访问接口--->",request.path)
+    return environ
 
 
 if __name__ == '__main__':

@@ -29,6 +29,7 @@ def login():
             session['islogin'] = 'true'
             session['userid'] = result[0].USERID
             session['username'] = username
+            session['role'] = result[0].ROLE
             response = make_response('login-pass')
             response.set_cookie('username', username, max_age=30*24*3600)
             response.set_cookie('password', password, max_age=30*24*3600)
