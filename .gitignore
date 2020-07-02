@@ -2,6 +2,7 @@
 __pycache__
 __pycache__/
 __pycache__/*
+__pycache__/main.cpython-37.pyc
 .idea
 .idea/
 .idea/*
