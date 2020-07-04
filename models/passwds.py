@@ -6,5 +6,5 @@ from common.database import dbconnect
 dbsession, md, DBase = dbconnect()
 
 
-class Passwd(DBase):
+class Passwds(DBase):
     __table__ = Table('passwd', md, autoload=True)

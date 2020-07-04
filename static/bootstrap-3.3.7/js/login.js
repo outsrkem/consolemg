@@ -18,9 +18,13 @@ function doLogin(e) {
                 location.href = '/aaa';
             }, 200);
         } else if (data == "login-error") {
-            alert("登录失败，请检查用户名或密码是否正确。")
+            alert("登录失败，请检查用户名或密码是否正确。");
+        } else if (data == 'password-expired') {
+            alert("密码已失效，请重置密码。");
+        } else if (data == 'For-the-first-time-login'){
+            alert("首次登陆，请重置密码。");
         } else {
-            alert(param)
+            alert("系统异常，请联系管理员。");
         }
     });
 }
