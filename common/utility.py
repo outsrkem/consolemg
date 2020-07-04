@@ -12,6 +12,5 @@ def model_list(result):
         list.append(dict)
         return list
     except Exception as e:
-        print(e)
         return 'error'
 

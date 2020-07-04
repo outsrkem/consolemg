@@ -54,9 +54,6 @@ def logout():
     session.clear()
     response = make_response('注销登录并重定向', 302)
     response.headers['location'] = url_for('index.f_login')
-    # 清空cookie，下面2条一样的效果，都是清空cookie
-    response.delete_cookie('username')  # 删除cookie
-    response.set_cookie('password', '', max_age=0)  # 设置cookie保存时间为0，即马上过期，效果和删除一样
     return response  # 返回到index.red函数,即index视图的red函数
 
 
