@@ -4,7 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from redis import Redis
 import pymysql  # ImportError: No module named 'MySQLdb
 import os
+
 from flask_session import Session
+
+from settings import logconfig
 
 pymysql.install_as_MySQLdb()
 app = Flask(__name__, template_folder='templates', static_url_path='/', static_folder='static')
@@ -22,6 +25,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = 1800
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = Redis(host='10.10.10.24', port=6379,db=6)
 Session(app)
+
 
 @app.route('/redis')
 def hello_world():

@@ -9,3 +9,4 @@ __pycache__/*
 git-updata.bat
 static/blognote-data.sql
 static/install.sql
+consolemg.log

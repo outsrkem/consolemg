@@ -43,7 +43,6 @@ class Users(DBase):
     # 插入注册用户密码
     def inst_passwd(self, userid, passwd):
         nowtime = time.strftime('%Y-%m-%d %H:%M:%S')
-        inactive = Caltime(time.strftime('%Y-%m-%d'))
         dbsession.add(Passwds(USERID=userid, PASSWD=passwd,CHANGE = nowtime,INACTIVE = '0'))
         dbsession.commit()
 
