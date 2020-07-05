@@ -2,10 +2,10 @@
 __pycache__
 __pycache__/*
 */__pycache__
-*.pyc
 .idea
 .idea/
 .idea/*
+*.pyc
 git-updata.bat
 static/blognote-data.sql
 static/install.sql
