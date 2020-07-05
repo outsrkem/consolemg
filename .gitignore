@@ -1,7 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__
-__pycache__/
 __pycache__/*
+*/__pycache__
 .idea
 .idea/
 .idea/*
@@ -9,3 +9,4 @@ __pycache__/*
 git-updata.bat
 static/blognote-data.sql
 static/install.sql
+consolemg.log
