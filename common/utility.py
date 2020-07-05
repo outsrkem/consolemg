@@ -12,5 +12,5 @@ def model_list(result):
         list.append(dict)
         return list
     except Exception as e:
-        return 'error'
+        return ("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
 

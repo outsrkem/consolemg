@@ -15,7 +15,7 @@ function doLogin(e) {
     $.post('/login', param, function (data) {
         if (data == "login-pass") {
             setTimeout(function () {
-                location.href = '/aaa';
+                location.href = '/overview';
             }, 200);
         } else if (data == "login-error") {
             alert("登录失败，请检查用户名或密码是否正确。");
