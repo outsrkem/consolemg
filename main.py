@@ -27,27 +27,15 @@ app.config['SESSION_REDIS'] = Redis(host='10.10.10.24', port=6379,db=6)
 Session(app)
 
 
-@app.route('/redis')
-def hello_world():
-    session['aa']='lis'
-    print(session.get('aa'))
-    return 'ok'
-
 @app.before_request
 def before():
     url = request.path
-    pass_list = ['/login','/logout', '/chpasswd','/register']
+    pass_list = ['/','/login','/logout', '/chpasswd','/register']
     if url in pass_list or url.endswith('js') or url.endswith('.css') or \
             url.endswith('.png') or url.endswith('.jpg') or url.endswith('.ico'):
         pass
     elif session.get('islogin') != 'true':
         return redirect('/login')
-
-
-@app.route('/aaa')
-def aaaa():
-    return render_template('overview.html')
-
 
 # 接口测试
 @app.after_request
