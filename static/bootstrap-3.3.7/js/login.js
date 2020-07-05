@@ -22,7 +22,15 @@ function doLogin(e) {
         } else if (data == 'password-expired') {
             alert("密码已失效，请重置密码。");
         } else if (data == 'For-the-first-time-login'){
-            alert("首次登陆，请重置密码。");
+            // alert("首次登陆，请重置密码。");
+            var click = confirm("首次登陆，点击确定，修改密码。");
+            if (click) {
+                console.log("点击了确定，正在跳转"+click);
+            } else {
+                console.log("点击了取消，无动作"+click);
+            }
+
+
         } else {
             alert("系统异常，请联系管理员。");
         }
