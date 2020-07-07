@@ -25,7 +25,7 @@ function doLogin(e) {
             // alert("首次登陆，请重置密码。");
             var click = confirm("首次登陆，点击确定，修改密码。");
             if (click) {
-                console.log("点击了确定，正在跳转"+click);
+                window.location.href="/chpasswd";
             } else {
                 console.log("点击了取消，无动作"+click);
             }

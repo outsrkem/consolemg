@@ -1,0 +1,17 @@
+{% extends 'dashboardbase.html' %}
+{% block nav_title_active %}用户中心{% endblock %}
+{% block nav_user_active %}active{% endblock %}
+{% block base %}
+<div class="row">
+    <div class="col-xs-12">
+        <h3 class="page-header">用户中心</h3>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <!-- Standard button -->
+    <a href="/chpasswd?callback={{session.get('sha256userid')}}">
+        <button type="button" class="btn btn-default">修改密码</button>
+    </a>
+</div>
+{% endblock base %}

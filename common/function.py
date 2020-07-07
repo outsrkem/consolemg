@@ -2,6 +2,8 @@ import datetime
 import time
 import base64
 import hmac
+import hashlib
+import cryptography.fernet
 
 
 def Caltime(date2):
@@ -54,3 +56,23 @@ def certify_token(key, token):
         return False
     # token certification success
     return True
+
+
+def sha256hex(data):
+    sha256 = hashlib.sha256()
+    sha256.update(data.encode())
+    res = sha256.hexdigest()
+    return res
+
+
+def encrypt_userid(data):
+    a = cryptography.fernet.Fernet.generate_key()  # 自动生成密钥
+    b = cryptography.fernet.Fernet(a)
+    c = b.encrypt(data.encode())  # 使用生成的密钥加密
+    return c
+
+
+def decode_userid(data, b):
+    d = b.decrypt(data)  # 使用生成的密钥解密
+    res = d.decode()
+    return res
