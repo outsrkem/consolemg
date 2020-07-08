@@ -76,3 +76,10 @@ class Users(DBase):
         dbsession.commit()
         return 'change_passwd_pass'
 
+    # 删除用户
+    def delete_user(self, userid):
+        dbsession.query(Users).filter_by(USERID=userid).delete()
+        dbsession.commit()
+        dbsession.query(Passwds).filter_by(USERID=userid).delete()
+        dbsession.commit()
+        return 'cancel-pass'

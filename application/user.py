@@ -115,33 +115,46 @@ def chpasswd():
         password ：密码
     @Return:
         返回修改结果
-    需使用token认证用户是否输入过密码，且原密码认证通过
     '''
     if request.method == 'GET':
         return render_template('./user/chpasswd.html')
     elif request.method == 'POST':
-        username = request.form.get('username').strip()
+        username = session.get('username')
         oldpassword = request.form.get('oldpassword').strip()
         newpassword = request.form.get('newpassword').strip()
         result = Users().find_by_userinfo(username)
         # 用户是否存在
         if not len(result) > 0:
             return 'password-register'
-        # 密码包含数字，大小写字母，特殊字符 <>~!@#$%^&*()_+`-=[]{};'",./? 且长度不小于8位
-        elif len(newpassword) < 8 or re.match("^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[<~!@#$%^&*()_+`\-\=\[\]{};\'\",./?>])).*$", password) == None:
-            return 'password-invalid'
+        elif check_password_hash(Users().find_by_passwdinfo(username).PASSWD, oldpassword):
+            passwd = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=16)
+            Users().change_passwd(result[0].USERID, passwd)
+            result_p = Users().find_by_passwdinfo(username)
+            session['inactiveTime'] = result_p.INACTIVE
+            print('change-password-pass')
+            return 'change-password-pass'
+        else:
+            print('auth-failure')
+            return 'auth-failure'
+        return 'error'
 
-        # 修改密码开始
-        try:
-            if token != None:
-                if certify_token(result[0].USERID, token):
-                    passwd = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=8)
-                    Users().change_passwd(result[0].USERID, passwd)
-                else:
-                    return 'error'
-                return 'change-password-pass'
-            else:
-                return 'auth-failure'
-        except Exception as e:
-            print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_globals['__file__'], e))
+
+# 删除用户
+@user.route('/deluser/<int:userid>', methods=['GET','POST','DELETE'])
+def deleteuser(userid):
+    username = session.get('username')
+    result = Users().find_by_userinfo(username)
+    print(userid)
+    print(username)
+    if not len(result) > 0:
+        print('用户不存在')
+        return 'password-register'
+    elif False:
+        result = Users().delete_user(userid)
+        if result == 'cancel-pass':
+            session.clear()
+            return result
+        else:
             return 'error'
+    else:
+        return 'error'

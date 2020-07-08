@@ -10,8 +10,12 @@
 
 <div class="table-responsive">
     <!-- Standard button -->
-    <a href="/chpasswd?callback={{session.get('sha256userid')}}">
+    <a href="/chpasswd">
         <button type="button" class="btn btn-default">修改密码</button>
     </a>
+
+        <button type="button" class="btn btn-default" onclick="canceluser('{{session.get('userid')}}')">账户注销</button>
 </div>
+
+
 {% endblock base %}
