@@ -66,17 +66,40 @@ function dochpasswd(e) {
 
 
 function canceluser(userid) {
+    var mcode = $.trim($("#mcode").val());
     //ajax没有delete请求，使用ajax发送任何形式的请求（原生方式）
-
     $.ajax({
         url: '/deluser/' + userid,
-        type: 'delete',
+        data: {_method: "DELETE", mcode: mcode},
+        type: 'POST',
         success: function (data) {
             if (data == 'cancel-pass') {
                 alert("账号已成功注销。");
+            } else if (data == 'mcode-error') {
+                alert("验证码错误。");
             } else {
                 alert("系统异常，请联系管理员。");
             }
+        }
+    });
+}
+
+/**
+ * 发送邮件验证码
+ * @param obj
+ * @returns {boolean}
+ */
+function doSendMail(obj) {
+
+    var email = $.trim($("#regemail").val());
+    $(obj).attr('disabled', true);     // 发送邮件按钮变成不可用
+    $.post('/ecode', function (data) {
+        if (data == 'send-pass') {
+            alert("验证码已成功发送到邮箱 < " + email + " > 请查收。")
+            return false;
+        } else {
+            alert("邮箱验证码发送失败。请稍后重试。")
+            return false;
         }
     });
 }

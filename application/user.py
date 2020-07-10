@@ -4,6 +4,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from models.users import Users
 from common.redisdb import redis_connent
 from common.function import generate_token, certify_token, sha256hex
+from common.function import gen_email_code, send_email
 import time
 import re
 
@@ -38,6 +39,7 @@ def login():
                         session['inactiveTime'] = inactiveTime
                         session['userid'] = result_u[0].USERID
                         session['username'] = result_u[0].USERNAME
+                        session['email'] = result_u[0].EMAIL
                         session['role'] = result_u[0].ROLE
                         response = make_response('login-pass')
                         return response
@@ -89,16 +91,17 @@ def register():
     '''
     username = request.form.get('username').strip()
     password = request.form.get('password').strip()
+    email = request.form.get('email').strip()
     if len(username) < 5 or re.match("^(?:(?=.*[A-Z])|(?=.*[a-z])|(?=.*[0-9])(?=.*[A-Z])|(?=.*[a-z])|(?=.*[@])(?=.*[0-9])|(?=.*[A-Z])|(?=.*[a-z])).*$", username) == None:
         return 'username-invalid'
-    elif len(password) < 5:
+    elif not re.match('.+@.+\..+', email)  or len(password) < 5:
         return 'passwd-invalid'
     elif len(Users().find_by_userinfo(username)) > 0:
         return 'user-repeated'
     else:
         userid = int(round(time.time() * 1000000))
         passwd = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
-        row = Users().user_register(userid, username, passwd)
+        row = Users().user_register(userid, username, passwd,email)
         if row == 'inst-pass':
             return 'reg-pass'
         elif row == 'inst-failed':
@@ -143,18 +146,36 @@ def chpasswd():
 @user.route('/deluser/<int:userid>', methods=['GET','POST','DELETE'])
 def deleteuser(userid):
     username = session.get('username')
+    mcode = request.form.get('mcode').strip()
     result = Users().find_by_userinfo(username)
     print(userid)
     print(username)
-    if not len(result) > 0:
-        print('用户不存在')
-        return 'password-register'
-    elif False:
-        result = Users().delete_user(userid)
-        if result == 'cancel-pass':
-            session.clear()
-            return result
+    print(mcode)
+    if mcode == '123123':
+        if not len(result) > 0:
+            print('用户不存在')
+            return 'password-register'
+        elif False:
+            result = Users().delete_user(userid)
+            if result == 'cancel-pass':
+                session.clear()
+                return result
+            else:
+                return 'error'
         else:
             return 'error'
-    else:
-        return 'error'
+    return 'mcode-error'
+
+# 获取验证码
+@user.route('/ecode', methods=['POST'])
+def ecode():
+    email = session.get('email')
+    code = gen_email_code() # 获取到验证码
+    try:
+        send_email(email, code)
+        session['ecode'] = code # 保存验证码
+
+        return 'send-pass'
+    except Exception as e:
+        print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
+        return 'send-fail'
