@@ -41,7 +41,7 @@ def server_error(e):
 def before():
     url = request.path
     pass_list = ['/login', '/logout', '/chpasswd', '/register']
-    if url in pass_list or url.endswith('js') or url.endswith('.css') or \
+    if url in pass_list or url.endswith('.js') or url.endswith('.css') or \
             url.endswith('.png') or url.endswith('.jpg') or url.endswith('.ico'):
         pass
     elif session.get('islogin') != 'true':

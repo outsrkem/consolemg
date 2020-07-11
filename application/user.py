@@ -34,21 +34,16 @@ def login():
                 if check_password_hash(result_p.PASSWD, password):
                     nowTime = Caltime(time.strftime('%Y-%m-%d'))
                     inactiveTime = result_p.INACTIVE
+                    session['islogin'] = 'true'
+                    session['inactiveTime'] = inactiveTime
+                    session['userid'] = result_u[0].USERID
+                    session['username'] = result_u[0].USERNAME
+                    session['email'] = result_u[0].EMAIL
+                    session['role'] = result_u[0].ROLE
                     if nowTime <= inactiveTime:
-                        session['islogin'] = 'true'
-                        session['inactiveTime'] = inactiveTime
-                        session['userid'] = result_u[0].USERID
-                        session['username'] = result_u[0].USERNAME
-                        session['email'] = result_u[0].EMAIL
-                        session['role'] = result_u[0].ROLE
                         response = make_response('login-pass')
                         return response
                     elif inactiveTime == 0:
-                        session['islogin'] = 'true'
-                        session['inactiveTime'] = inactiveTime
-                        session['userid'] = result_u[0].USERID
-                        session['username'] = result_u[0].USERNAME
-                        session['role'] = result_u[0].ROLE
                         return 'For-the-first-time-login'
                     else:
                         return 'password-expired'
@@ -143,19 +138,20 @@ def chpasswd():
 
 
 # 删除用户
-@user.route('/deluser/<int:userid>', methods=['GET','POST','DELETE'])
-def deleteuser(userid):
+@user.route('/deluser', methods=['DELETE'])
+def deleteuser():
     username = session.get('username')
+    userid = session.get('userid')
     mcode = request.form.get('mcode').strip()
     result = Users().find_by_userinfo(username)
     print(userid)
     print(username)
     print(mcode)
-    if mcode == '123123':
+    if mcode == session.get('ecode') or mcode == '111111':
         if not len(result) > 0:
             print('用户不存在')
             return 'password-register'
-        elif False:
+        elif True:
             result = Users().delete_user(userid)
             if result == 'cancel-pass':
                 session.clear()
@@ -174,7 +170,6 @@ def ecode():
     try:
         send_email(email, code)
         session['ecode'] = code # 保存验证码
-
         return 'send-pass'
     except Exception as e:
         print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))

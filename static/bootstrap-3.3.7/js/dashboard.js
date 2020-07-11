@@ -44,7 +44,6 @@ function dochpasswd(e) {
     if (e != null && e.keyCode != 13) {
         return false;
     }
-
     var inlodpass = $.trim($("#inlodpass").val());
     var innewpass = $.trim($("#innewpass").val());
     // 构建POST请求的正文数据
@@ -54,6 +53,9 @@ function dochpasswd(e) {
     $.post('/chpasswd', param, function (data) {
         if (data == "change-password-pass") {
             alert("密码修改成功");
+            setTimeout(function () {
+                location.href = '/usercenter';
+            }, 200);
         } else if (data == "auth-failure") {
             alert("密码认证错误。");
         } else if (data == 'error') {
@@ -64,24 +66,36 @@ function dochpasswd(e) {
     });
 }
 
-
-function canceluser(userid) {
+/**
+ * 用户账号注销
+ * @param mcode
+ */
+function canceluser() {
     var mcode = $.trim($("#mcode").val());
-    //ajax没有delete请求，使用ajax发送任何形式的请求（原生方式）
-    $.ajax({
-        url: '/deluser/' + userid,
-        data: {_method: "DELETE", mcode: mcode},
-        type: 'POST',
-        success: function (data) {
-            if (data == 'cancel-pass') {
-                alert("账号已成功注销。");
-            } else if (data == 'mcode-error') {
-                alert("验证码错误。");
-            } else {
-                alert("系统异常，请联系管理员。");
+    //ajax没有delete请求，可使用ajax原生方式发送任何形式的请求
+    var click = confirm("确定要注销账号吗？注销之后不可恢复。");
+    if (click) {
+        $.ajax({
+            url: '/deluser',
+            data: {_method: "DELETE", mcode: mcode},
+            type: 'DELETE',
+            success: function (data) {
+                if (data == 'cancel-pass') {
+                    alert("账号已成功注销。");
+                    setTimeout(function () {
+                        location.href = '/login';
+                    }, 200);
+                } else if (data == 'mcode-error') {
+                    alert("验证码错误。");
+                } else {
+                    alert("系统异常，请联系管理员。");
+                }
             }
-        }
-    });
+        });
+    } else {
+        console.log("点击了取消");
+    }
+
 }
 
 /**
@@ -90,16 +104,42 @@ function canceluser(userid) {
  * @returns {boolean}
  */
 function doSendMail(obj) {
-
     var email = $.trim($("#regemail").val());
-    $(obj).attr('disabled', true);     // 发送邮件按钮变成不可用
+    // 发送邮件按钮变成不可用
+    t = setInterval(function () {
+        countdown(obj)
+    }, 1000)
+    countdown(obj);
     $.post('/ecode', function (data) {
         if (data == 'send-pass') {
-            alert("验证码已成功发送到邮箱 < " + email + " > 请查收。")
+            $("#content").append("验证码已成功发送到邮箱 < " + email + " > 请查收。");
             return false;
         } else {
             alert("邮箱验证码发送失败。请稍后重试。")
             return false;
         }
     });
+}
+
+/**
+ * 倒计时
+ */
+var t; //倒计时对象
+var time = 10;
+
+function countdown(e) {
+    if (time == 0) {
+        //这里时设置当时间到0的时候重新设置点击事件，并且默认time修改为60
+        //e.setAttribute("onclick", "getcode(this)");
+        $(e).attr('disabled', false);
+        document.getElementById("getcode").innerText = "获取验证码";
+        time = 10;
+        clearInterval(t);
+    } else {
+        //这里是显示时间倒计时的时候点击不生效
+        e.setAttribute("onclick", '');
+        $(e).attr('disabled', true);
+        document.getElementById("getcode").innerHTML = time + " 秒后重试";
+        time--;
+    }
 }
