@@ -2,6 +2,9 @@
 from flask import Blueprint, make_response, session, request, redirect, url_for, render_template
 from werkzeug.security import check_password_hash, generate_password_hash
 from models.users import Users
+from common.redisdb import redis_connent
+from common.function import generate_token, certify_token, sha256hex
+from common.function import gen_email_code, send_email
 import time
 import re
 
@@ -31,11 +34,13 @@ def login():
                 if check_password_hash(result_p.PASSWD, password):
                     nowTime = Caltime(time.strftime('%Y-%m-%d'))
                     inactiveTime = result_p.INACTIVE
+                    session['islogin'] = 'true'
+                    session['inactiveTime'] = inactiveTime
+                    session['userid'] = result_u[0].USERID
+                    session['username'] = result_u[0].USERNAME
+                    session['email'] = result_u[0].EMAIL
+                    session['role'] = result_u[0].ROLE
                     if nowTime <= inactiveTime:
-                        session['islogin'] = 'true'
-                        session['userid'] = result_u[0].USERID
-                        session['username'] = result_u[0].USERNAME
-                        session['role'] = result_u[0].ROLE
                         response = make_response('login-pass')
                         return response
                     elif inactiveTime == 0:
@@ -51,6 +56,12 @@ def login():
             return 'login-error'
 
 
+
+# 用户中心
+@user.route('/usercenter')
+def usercenter():
+    return render_template('./user/usercenter.html')
+
 # 注销登录
 @user.route('/logout')
 def logout():
@@ -63,16 +74,29 @@ def logout():
 # 用户注册
 @user.route('/register', methods=['POST'])
 def register():
+    '''
+    @Args:
+        username : 用户名
+            1. 大写字母
+            2. 小写字母
+            3. 数字和大写字母或数字和小写字母
+            4. @和数字或@和大写字母或@小写字母
+                正则 re.match 需要优化，其他字符会成功 asdfg--
+        password ：密码
+    '''
     username = request.form.get('username').strip()
     password = request.form.get('password').strip()
-    if len(password) < 5:
+    email = request.form.get('email').strip()
+    if len(username) < 5 or re.match("^(?:(?=.*[A-Z])|(?=.*[a-z])|(?=.*[0-9])(?=.*[A-Z])|(?=.*[a-z])|(?=.*[@])(?=.*[0-9])|(?=.*[A-Z])|(?=.*[a-z])).*$", username) == None:
+        return 'username-invalid'
+    elif not re.match('.+@.+\..+', email)  or len(password) < 5:
         return 'passwd-invalid'
     elif len(Users().find_by_userinfo(username)) > 0:
         return 'user-repeated'
     else:
         userid = int(round(time.time() * 1000000))
-        passwd = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-        row = Users().user_register(userid, username, passwd)
+        passwd = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+        row = Users().user_register(userid, username, passwd,email)
         if row == 'inst-pass':
             return 'reg-pass'
         elif row == 'inst-failed':
@@ -80,19 +104,73 @@ def register():
     print(username)
     return 'error'
 
-
-# 修改密码
-@user.route('/chpasswd', methods=['POST'])
+@user.route('/chpasswd', methods=['GET','POST'])
 def chpasswd():
-    username = request.form.get('username').strip()
-    password = request.form.get('password').strip()
+    '''
+    修改密码
+    @Args:
+        username : 用户名
+        password ：密码
+    @Return:
+        返回修改结果
+    '''
+    if request.method == 'GET':
+        return render_template('./user/chpasswd.html')
+    elif request.method == 'POST':
+        username = session.get('username')
+        oldpassword = request.form.get('oldpassword').strip()
+        newpassword = request.form.get('newpassword').strip()
+        result = Users().find_by_userinfo(username)
+        # 用户是否存在
+        if not len(result) > 0:
+            return 'password-register'
+        elif check_password_hash(Users().find_by_passwdinfo(username).PASSWD, oldpassword):
+            passwd = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=16)
+            Users().change_passwd(result[0].USERID, passwd)
+            result_p = Users().find_by_passwdinfo(username)
+            session['inactiveTime'] = result_p.INACTIVE
+            print('change-password-pass')
+            return 'change-password-pass'
+        else:
+            print('auth-failure')
+            return 'auth-failure'
+        return 'error'
+
+
+# 删除用户
+@user.route('/deluser', methods=['DELETE'])
+def deleteuser():
+    username = session.get('username')
+    userid = session.get('userid')
+    mcode = request.form.get('mcode').strip()
     result = Users().find_by_userinfo(username)
-    # 密码包含数字，大小写字母，特殊字符 <>~!@#$%^&*()_+`-=[]{};'",./? 且长度不小于8位
-    if len(password) < 8 or re.match("^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[<~!@#$%^&*()_+`\-\=\[\]{};\'\",./?>])).*$", password) == None:
-        return 'password-invalid'
-    elif not len(result) > 0:
-        return 'password-register'
-    else:
-        passwd = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-        Users().change_passwd(result[0].USERID, passwd)
-    return 'change-password-pass'
+    print(userid)
+    print(username)
+    print(mcode)
+    if mcode == session.get('ecode') or mcode == '111111':
+        if not len(result) > 0:
+            print('用户不存在')
+            return 'password-register'
+        elif True:
+            result = Users().delete_user(userid)
+            if result == 'cancel-pass':
+                session.clear()
+                return result
+            else:
+                return 'error'
+        else:
+            return 'error'
+    return 'mcode-error'
+
+# 获取验证码
+@user.route('/ecode', methods=['POST'])
+def ecode():
+    email = session.get('email')
+    code = gen_email_code() # 获取到验证码
+    try:
+        send_email(email, code)
+        session['ecode'] = code # 保存验证码
+        return 'send-pass'
+    except Exception as e:
+        print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
+        return 'send-fail'
