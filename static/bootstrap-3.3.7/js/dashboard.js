@@ -60,6 +60,8 @@ function dochpasswd(e) {
             alert("密码认证错误。");
         } else if (data == 'error') {
             alert("请求错误");
+        } else if(data == 'passwd-invalid') {
+            alert("密码过于简单。");
         } else {
             alert("系统异常，请联系管理员。");
         }
@@ -103,16 +105,18 @@ function canceluser() {
  * @param obj
  * @returns {boolean}
  */
-function doSendMail(obj) {
+function doSendMail(e) {
     var email = $.trim($("#regemail").val());
-    // 发送邮件按钮变成不可用
     t = setInterval(function () {
-        countdown(obj)
+        countdown(e)
     }, 1000)
-    countdown(obj);
+    countdown(e);
     $.post('/ecode', function (data) {
         if (data == 'send-pass') {
-            $("#content").append("验证码已成功发送到邮箱 < " + email + " > 请查收。");
+            // 移除验证码发送提示。
+            $("#appendcontent").empty();
+            $("#appendcontent").append("验证码已成功发送到邮箱 < " + email + " > 请查收。");
+            console.log("验证码已成功发送到邮箱 < " + email + " > 请查收。");
             return false;
         } else {
             alert("邮箱验证码发送失败。请稍后重试。")
@@ -130,14 +134,14 @@ var time = 10;
 function countdown(e) {
     if (time == 0) {
         //这里时设置当时间到0的时候重新设置点击事件，并且默认time修改为60
-        //e.setAttribute("onclick", "getcode(this)");
+        e.setAttribute("onclick", "doSendMail(this)");
         $(e).attr('disabled', false);
         document.getElementById("getcode").innerText = "获取验证码";
         time = 10;
         clearInterval(t);
     } else {
         //这里是显示时间倒计时的时候点击不生效
-        e.setAttribute("onclick", '');
+        // e.setAttribute("onclick", '');
         $(e).attr('disabled', true);
         document.getElementById("getcode").innerHTML = time + " 秒后重试";
         time--;
