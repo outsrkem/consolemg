@@ -1,4 +1,6 @@
 from datetime import datetime
+
+
 def model_list(result):
     list = []
     dict = {}
@@ -12,5 +14,4 @@ def model_list(result):
         list.append(dict)
         return list
     except Exception as e:
-        return ("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
-
+        return ("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_globals['__file__'], e))

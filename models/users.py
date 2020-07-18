@@ -26,10 +26,10 @@ class Users(DBase):
         return result
 
     # 插入注册用户名
-    def inst_user(self, userid, username, ):
+    def inst_user(self, userid, username, email):
         # user = Users(USERID=userid, USERNAME=username, ROLE='1')
         try:
-            dbsession.add(Users(USERID=userid, USERNAME=username, ROLE='1'))
+            dbsession.add(Users(USERID=userid, USERNAME=username, EMAIL=email, ROLE='1'))
             dbsession.commit()
             return 'inst-u-pass'
         except Exception as e:
@@ -54,8 +54,8 @@ class Users(DBase):
 
     # 分装用户注册模型
     # 用户信息插入成功，才能执行插入密码inst_passwd，如果密码插入失败，则删除刚插入的改用户信息
-    def user_register(self, userid, username, passwd):
-        row_u = self.inst_user(userid, username)
+    def user_register(self, userid, username, passwd, email):
+        row_u = self.inst_user(userid, username, email)
         if row_u == 'inst-u-pass':
             row_p = self.inst_passwd(userid, passwd)
             if row_p == 'inst-p-pass':
@@ -76,3 +76,10 @@ class Users(DBase):
         dbsession.commit()
         return 'change_passwd_pass'
 
+    # 删除用户
+    def delete_user(self, userid):
+        dbsession.query(Users).filter_by(USERID=userid).delete()
+        dbsession.commit()
+        dbsession.query(Passwds).filter_by(USERID=userid).delete()
+        dbsession.commit()
+        return 'cancel-pass'
