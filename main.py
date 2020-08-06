@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-from flask import Flask, render_template, abort, send_from_directory, request, session, Blueprint
+from flask import Flask, render_template, abort, send_from_directory, request, session, Blueprint,json
 from flask_sqlalchemy import SQLAlchemy
 from redis import Redis
 import pymysql  # ImportError: No module named 'MySQLdb
@@ -49,6 +49,19 @@ def before():
     elif session['inactiveTime'] == 0:
         return redirect('/chpasswd')
 
+#接受json数据请求
+@app.route('/aaa' , methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        a = request.get_data()
+        print(a)
+        dict1 = json.loads(a)
+        print(dict1)
+        return json.dumps(dict1["data"])
+    else:
+        return '<h1>只接受post请求！</h1>'
+
+
 
 
 # 接口测试
@@ -60,13 +73,12 @@ def foot_log(environ):
 
 if __name__ == '__main__':
     from application.index import *
-
     app.register_blueprint(index)
+
     from application.user import *
-
     app.register_blueprint(user)
-    from application.link import *
 
+    from application.link import *
     app.register_blueprint(link)
 
-    app.run(debug=app.config['DEBUG'])
+    app.run(host=app.config['HOST'], debug=app.config['DEBUG'], ssl_context=("ssl/www.pem", "ssl/www-key.pem"))

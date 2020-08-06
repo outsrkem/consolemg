@@ -7,7 +7,6 @@ from common.function import generate_token, certify_token, sha256hex
 from common.function import gen_email_code, send_email
 import time
 import re
-
 from common.function import Caltime
 
 user = Blueprint('user', __name__)
@@ -113,7 +112,17 @@ def chpasswd():
         password ：密码
     @Return:
         返回修改结果
+    @密码匹配说明：
+        ^匹配开头
+        (?![A-Za-z0-9]+$)匹配后面不全是（大写字母或小写字母或数字）的位置，排除了（大写字母、小写字母、数字）的1种2种3种组合
+        (?![a-z0-9\\W]+$)匹配后面不全是（小写字母或数字或非字母数字）的位置，排除了（小写字母、数字、特殊符号）的1种2种3种组合
+        (?![A-Za-z\\W]+$)匹配后面不全是（大写字母或小写字母或非字母数字）的位置，排除了（大写字母、小写字母、特殊符号）的1种2种3种组合
+        (?![A-Z0-9\\W]+$)匹配后面不全是（大写字母或数字或非字母数字），排除了（大写字母、数组、特殊符号）的1种2种3种组合
+        ^.匹配除换行符以外的任意字符,因为排除了上面的组合，所以就只剩下了4种都包含的组合了
+        {8,}8位以上
+        $匹配字符串结尾
     '''
+    pattern = r'^(?![A-Za-z0-9]+$)(?![a-z0-9\\W]+$)(?![A-Za-z\\W]+$)(?![A-Z0-9\\W]+$)^.{8,}$'
     if request.method == 'GET':
         return render_template('./user/chpasswd.html')
     elif request.method == 'POST':
@@ -124,12 +133,15 @@ def chpasswd():
         # 用户是否存在
         if not len(result) > 0:
             return 'password-register'
+        # elif not re.search(pattern, newpassword):
+        elif re.search(pattern, newpassword):
+            print('密码无效')
+            return 'passwd-invalid'
         elif check_password_hash(Users().find_by_passwdinfo(username).PASSWD, oldpassword):
             passwd = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=16)
             Users().change_passwd(result[0].USERID, passwd)
             result_p = Users().find_by_passwdinfo(username)
             session['inactiveTime'] = result_p.INACTIVE
-            print('change-password-pass')
             return 'change-password-pass'
         else:
             print('auth-failure')

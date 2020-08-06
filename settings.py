@@ -28,7 +28,7 @@ DEBUG = True
 PORT = 8000
 
 # host
-HOST = '127.0.0.1'
+HOST = '10.10.10.1'
 
 # 用于session ID
 SECRET_KEY = 'wderqeyJ2Y29kZSI6ImxkbG4ifQ.Xr-Lbg.ojkAcx7BZx7590luvEIvhYASA_8'
