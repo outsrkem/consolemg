@@ -81,4 +81,6 @@ if __name__ == '__main__':
     from application.link import *
     app.register_blueprint(link)
 
-    app.run(host=app.config['HOST'], debug=app.config['DEBUG'], ssl_context=("ssl/www.pem", "ssl/www-key.pem"))
+    app.run(host=app.config['HOST'],
+            debug=app.config['DEBUG'],
+            ssl_context=("cert/www.pem", "cert/www-key.pem"))

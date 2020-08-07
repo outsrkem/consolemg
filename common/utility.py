@@ -15,3 +15,20 @@ def model_list(result):
         return list
     except Exception as e:
         return ("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_globals['__file__'], e))
+
+
+
+def trueReturn(data, msg):
+    return {
+        "status": True,
+        "data": data,
+        "msg": msg
+    }
+
+
+def falseReturn(data, msg):
+    return {
+        "status": False,
+        "data": data,
+        "msg": msg
+    }
