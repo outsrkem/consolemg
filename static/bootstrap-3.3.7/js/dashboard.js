@@ -5,7 +5,6 @@ function doLogin(e) {
     if (e != null && e.keyCode != 13) {
         return false;
     }
-
     var loginname = $.trim($("#loginname").val());
     var loginpass = $.trim($("#loginpass").val());
     // 构建POST请求的正文数据
@@ -37,6 +36,65 @@ function doLogin(e) {
     });
 }
 
+
+/**
+ * 登录处理使用token
+ * 头部就是添加不上
+ */
+function doLogin2(e) {
+    if (e != null && e.keyCode != 13) {
+        return false;
+    }
+    var loginname = $.trim($("#loginname").val());
+    var loginpass = $.trim($("#loginpass").val());
+    // 利用jQuery框架发送POST请求，并获取到后台登录接口的响应内容
+    $.ajax({
+        url: '/auth/login',
+        data: {_method: "POST", username: loginname, password: loginpass},
+        type: 'POST',
+        success: function (data, textStatus, request) {
+            let tokenid2 = request.getResponseHeader("x-auth-token")
+            //window.localStorage.setItem('usetoken', tokenid2)
+            window.sessionStorage.setItem('usetoken', tokenid2)
+        }
+    });
+}
+
+/**
+ * 测试token用
+ * @param e
+ * @returns {boolean}
+ */
+function testtoken(e) {
+    var loginname = $.trim($("#loginname").val());
+    var loginpass = $.trim($("#loginpass").val());
+    var userToken = window.localStorage.getItem("usetoken");
+    // 利用jQuery框架发送POST请求，并获取到后台登录接口的响应内容
+    $.ajax({
+        url: '/auth/user',
+        data: {_method: "GET", username: loginname, password: loginpass},
+        type: 'GET',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Content-Type", "application/json;charset=utf-8");
+            xhr.setRequestHeader("X-Auth-Token", userToken);
+        },
+        success: function (response, status, xhr) {
+            var myhead = userToken
+            console.log(myhead);	//服务器返回的信息
+
+        }
+    });
+}
+
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 /**
  * 修改密码
  */
@@ -60,7 +118,7 @@ function dochpasswd(e) {
             alert("密码认证错误。");
         } else if (data == 'error') {
             alert("请求错误");
-        } else if(data == 'passwd-invalid') {
+        } else if (data == 'passwd-invalid') {
             alert("密码过于简单。");
         } else {
             alert("系统异常，请联系管理员。");
@@ -147,3 +205,5 @@ function countdown(e) {
         time--;
     }
 }
+
+

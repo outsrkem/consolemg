@@ -1,5 +1,5 @@
 # -*- coding=utf-8 -*-
-from flask import Blueprint, make_response, session, request, redirect, url_for, render_template
+from flask import Blueprint, make_response, session, request, redirect, url_for, render_template, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from models.users import Users
 from common.redisdb import redis_connent
@@ -186,3 +186,9 @@ def ecode():
     except Exception as e:
         print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
         return 'send-fail'
+
+
+
+
+
+

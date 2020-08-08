@@ -37,21 +37,48 @@ def page_not_found(e):
 def server_error(e):
     return render_template('500.html')
 
-@app.before_request
+# @app.before_request
 def before():
     url = request.path
-    pass_list = ['/login', '/logout', '/chpasswd', '/register']
+
+    pass_list = ['/login', '/logout', '/chpasswd', '/register', '/auth/login']
     if url in pass_list or url.endswith('.js') or url.endswith('.css') or \
             url.endswith('.png') or url.endswith('.jpg') or url.endswith('.ico'):
         pass
-    elif session.get('islogin') != 'true':
-        return redirect('/login')
-    elif session['inactiveTime'] == 0:
-        return redirect('/chpasswd')
+    else:
+        result = identify(request)
+        if not result['status']:
+            return redirect('/login')
+
+
+
+
+
+
 
 #接受json数据请求
+
 @app.route('/aaa' , methods=['GET', 'POST'])
 def index():
+    '''
+    @Examples
+    curl -i -k -H "Content-Type:application/json" \
+    -X POST https://10.10.10.1:5000/aaa -d \
+    '{
+        "opr": "add",
+        "data": {
+            "userName": "98997",
+            "disc": "zhangsan",
+            "expDate":"2",
+            "ip": [
+                "10.10.11.1",
+                "10.10.11.2",
+                "10.10.11.3"
+                ]
+        }
+    }'
+    :return:
+    '''
     if request.method == 'POST':
         a = request.get_data()
         print(a)
@@ -80,6 +107,9 @@ if __name__ == '__main__':
 
     from application.link import *
     app.register_blueprint(link)
+
+    from application.authorized import *
+    app.register_blueprint(auth)
 
     app.run(host=app.config['HOST'],
             debug=app.config['DEBUG'],
