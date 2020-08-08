@@ -37,27 +37,19 @@ def page_not_found(e):
 def server_error(e):
     return render_template('500.html')
 
-# @app.before_request
+@app.before_request
 def before():
     url = request.path
-
     pass_list = ['/login', '/logout', '/chpasswd', '/register', '/auth/login']
     if url in pass_list or url.endswith('.js') or url.endswith('.css') or \
             url.endswith('.png') or url.endswith('.jpg') or url.endswith('.ico'):
         pass
     else:
         result = identify(request)
-        if not result['status']:
+        if not result.get_json()['status']:
             return redirect('/login')
 
-
-
-
-
-
-
 #接受json数据请求
-
 @app.route('/aaa' , methods=['GET', 'POST'])
 def index():
     '''

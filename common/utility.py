@@ -18,17 +18,19 @@ def model_list(result):
 
 
 
-def trueReturn(data, msg):
+def trueReturn(data, msg, code):
     return {
         "status": True,
         "data": data,
-        "msg": msg
+        "msg": msg,
+        "code": code
     }
 
 
-def falseReturn(data, msg):
+def falseReturn(data, msg, code):
     return {
         "status": False,
         "data": data,
-        "msg": msg
+        "msg": msg,
+        "code": code
     }

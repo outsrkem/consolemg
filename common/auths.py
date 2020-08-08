@@ -1,5 +1,5 @@
 import jwt, datetime, time
-from flask import jsonify
+from flask import jsonify, session
 from models.users import Users
 from common.utility import trueReturn, falseReturn
 from werkzeug.security import check_password_hash
@@ -83,16 +83,16 @@ def authenticate(username, password):
                     'userid': userid,
                     'username': username
                 }
-                result = trueReturn(data, '登录成功')
+                result = trueReturn(data, 'login successfully', '200')
 
                 return jsonify(result)
             else:
-                return jsonify(falseReturn('', '密码不正确'))
+                return jsonify(falseReturn('', 'password error', '000'))
         except Exception as e:
             return ("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
 
     else:
-        return jsonify(falseReturn('', '找不到用户'))
+        return jsonify(falseReturn('', '找不到用户', '000'))
 
 
 def identify(request):
@@ -102,19 +102,23 @@ def identify(request):
     """
     auth_header = request.headers.get('X-Auth-Token')
     userid = request.cookies.get('userid')
-    print(auth_header)
-    print(userid)
-    if auth_header != "" or auth_header != None:
+    if auth_header != "" and auth_header != None:
         auth_tokenArr = auth_header.split(" ")
         auth_token = auth_tokenArr[0]
     else:
         if userid is not None:
             redisdb = redis_connent()  # 连接redis 服务器
-            auth_tokenArr = redisdb.get("Token-" + userid).split(" ")
+            try:
+                auth_tokenArr = redisdb.get("Token-" + userid).split(" ")
+            except Exception as e:
+                print ("异常:[%s] [%s]  [%s]" % (e.__traceback__.tb_lineno, e.__traceback__.tb_frame.f_globals['__file__'], e))
+                print("701状态码，获取redis中token异常")
+                result = falseReturn('', '获取redis中token异常','701')
+                return jsonify(result)
             auth_token = auth_tokenArr[0]
         else:
-            result = falseReturn('', '没有提供认证token')
-            return result
+            result = falseReturn('', 'No authentication token is provided', '700')
+            return jsonify(result)
 
     if auth_token:
         auth_token = b64decode(auth_token)
@@ -127,12 +131,25 @@ def identify(request):
                 v = redisdb.hget(userid, k)
                 user.update({k: v})
             if (user is None):
-                result = falseReturn('', '找不到该用户信息')
+                result = falseReturn('', 'The user information could not be found', '700')
             else:
                 if int(user['login_time']) == payload['data']['login_time']:
-                    result = trueReturn(user['userid'], '请求成功')
+                    result = trueReturn(user['userid'], 'The request is successful', '200')
                 else:
-                    result = falseReturn('', 'Token已更改，请重新登录获取')
+                    result = falseReturn('', 'Token has changed, please log back in to get it', '000')
     else:
-        result = falseReturn('', '没有提供认证token')
-    return result
+        result = falseReturn('', 'No authentication token is provided', '700')
+    return jsonify(result)
+
+
+
+def delUserAuthToken(userid):
+    '''
+    删除用户的session和redis的token
+    :param userid:
+    :return:
+    '''
+    session.clear()
+    redisdb = redis_connent()  # 连接redis 服务器
+    redisdb.delete("Token-" + userid)
+

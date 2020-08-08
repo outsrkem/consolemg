@@ -55,7 +55,13 @@ function doLogin2(e) {
         success: function (data, textStatus, request) {
             let tokenid2 = request.getResponseHeader("x-auth-token")
             //window.localStorage.setItem('usetoken', tokenid2)
-            window.sessionStorage.setItem('usetoken', tokenid2)
+            //window.sessionStorage.setItem('usetoken', tokenid2)
+            //console.log(data['code']);
+            if (data['code'] == "200") {
+                setTimeout(function () {
+                    location.href = '/overview';
+                }, 200);
+            }
         }
     });
 }
@@ -80,7 +86,7 @@ function testtoken(e) {
         },
         success: function (response, status, xhr) {
             var myhead = userToken
-            console.log(myhead);	//服务器返回的信息
+            console.log(data);	//服务器返回的信息
 
         }
     });

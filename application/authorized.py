@@ -17,14 +17,17 @@ def authlogin():
     """
     username = request.form.get('username').strip()
     password = request.form.get('password').strip()
-    print(username,password)
+    print("登录的用户名和密码：",username,password)
     result = authenticate(username, password)
-    usertoken = result.get_json()['data']['token']
-    userid = result.get_json()['data']['userid']
-    response = make_response(result) # 使用make_response设置响应头部
-    response.headers['X-Auth-Token'] = usertoken
-    response.set_cookie('userid', userid, max_age=30 * 24 * 3600)
-    return response
+    if result.get_json()['status']:
+        usertoken = result.get_json()['data']['token']
+        userid = result.get_json()['data']['userid']
+        response = make_response(result) # 使用make_response设置响应头部
+        response.headers['X-Auth-Token'] = usertoken
+        response.set_cookie('userid', userid, max_age=30 * 24 * 3600)
+        return response
+    else:
+        return result
 
 
 
@@ -56,5 +59,5 @@ def authuser():
             'email': user['email'],
             'login_time': user['login_time']
         }
-        result = trueReturn(returnUser, "请求成功")
+        result = trueReturn(returnUser, "请求成功", "200")
     return jsonify(result)

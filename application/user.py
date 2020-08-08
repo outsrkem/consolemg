@@ -8,6 +8,7 @@ from common.function import gen_email_code, send_email
 import time
 import re
 from common.function import Caltime
+from common.auths import delUserAuthToken
 
 user = Blueprint('user', __name__)
 
@@ -55,18 +56,26 @@ def login():
             return 'login-error'
 
 
-
 # 用户中心
 @user.route('/usercenter')
 def usercenter():
-    return render_template('./user/usercenter.html')
+    redisdb = redis_connent()  # 连接redis 服务器
+    userid = request.cookies.get('userid')
+    context = {}
+    for k in redisdb.hkeys(userid):
+        v = redisdb.hget(userid, k)
+        context.update({k: v})
+    return render_template('./user/usercenter.html', context=context)
+
 
 # 注销登录
 @user.route('/logout')
 def logout():
-    session.clear()
+    userid = request.cookies.get('userid')
     response = make_response('注销登录并重定向', 302)
     response.headers['location'] = url_for('index.f_login')
+    response.delete_cookie('userid')  # 删除cookie
+    delUserAuthToken(userid)  # 删除redis的token
     return response  # 返回到index.red函数,即index视图的red函数
 
 
@@ -88,14 +97,14 @@ def register():
     email = request.form.get('email').strip()
     if len(username) < 5 or re.match("^(?:(?=.*[A-Z])|(?=.*[a-z])|(?=.*[0-9])(?=.*[A-Z])|(?=.*[a-z])|(?=.*[@])(?=.*[0-9])|(?=.*[A-Z])|(?=.*[a-z])).*$", username) == None:
         return 'username-invalid'
-    elif not re.match('.+@.+\..+', email)  or len(password) < 5:
+    elif not re.match('.+@.+\..+', email) or len(password) < 5:
         return 'passwd-invalid'
     elif len(Users().find_by_userinfo(username)) > 0:
         return 'user-repeated'
     else:
         userid = int(round(time.time() * 1000000))
         passwd = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
-        row = Users().user_register(userid, username, passwd,email)
+        row = Users().user_register(userid, username, passwd, email)
         if row == 'inst-pass':
             return 'reg-pass'
         elif row == 'inst-failed':
@@ -103,7 +112,8 @@ def register():
     print(username)
     return 'error'
 
-@user.route('/chpasswd', methods=['GET','POST'])
+
+@user.route('/chpasswd', methods=['GET', 'POST'])
 def chpasswd():
     '''
     修改密码
@@ -124,7 +134,13 @@ def chpasswd():
     '''
     pattern = r'^(?![A-Za-z0-9]+$)(?![a-z0-9\\W]+$)(?![A-Za-z\\W]+$)(?![A-Z0-9\\W]+$)^.{8,}$'
     if request.method == 'GET':
-        return render_template('./user/chpasswd.html')
+        redisdb = redis_connent()  # 连接redis 服务器
+        userid = request.cookies.get('userid')
+        context = {}
+        for k in redisdb.hkeys(userid):
+            v = redisdb.hget(userid, k)
+            context.update({k: v})
+        return render_template('./user/chpasswd.html', context=context)
     elif request.method == 'POST':
         username = session.get('username')
         oldpassword = request.form.get('oldpassword').strip()
@@ -174,21 +190,16 @@ def deleteuser():
             return 'error'
     return 'mcode-error'
 
+
 # 获取验证码
 @user.route('/ecode', methods=['POST'])
 def ecode():
     email = session.get('email')
-    code = gen_email_code() # 获取到验证码
+    code = gen_email_code()  # 获取到验证码
     try:
         send_email(email, code)
-        session['ecode'] = code # 保存验证码
+        session['ecode'] = code  # 保存验证码
         return 'send-pass'
     except Exception as e:
         print("异常:[%s] [%d]  [%s]" % (e.__traceback__.tb_frame.f_globals['__file__'], e.__traceback__.tb_lineno, e))
         return 'send-fail'
-
-
-
-
-
-
