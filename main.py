@@ -7,8 +7,6 @@ import os
 
 from flask_session import Session
 
-from settings import logconfig
-
 pymysql.install_as_MySQLdb()
 app = Flask(__name__, template_folder='templates', static_url_path='/', static_folder='static')
 app.config.from_object('settings')

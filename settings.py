@@ -3,22 +3,7 @@
 # config.py
 #-*- coding=utf-8 -*-
 import os
-import logging
-from logging.handlers import RotatingFileHandler
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-class logconfig():
-    # 设置日志文件，和字符编码
-    logging.basicConfig(level=logging.INFO)
-    # 创建日志记录器，　指明日志保存的路径、每个日志的大小、保存日志的上限
-    file_log_handler = RotatingFileHandler('consolemg.log', maxBytes=1024 * 1024, backupCount=10)
-    # 设置日志的格式       日志等级       日志信息的文件名　　行数　　日志信息
-    formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(filename)s - %(lineno)d - %(message)s')
-    # 将日志记录器指定日志的格式
-    file_log_handler.setFormatter(formatter)
-    # 为全局的日志工具对象添加日志记录器
-    logging.getLogger().addHandler(file_log_handler)
 
 # 调试模式
 
