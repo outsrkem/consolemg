@@ -17,7 +17,6 @@ def authlogin():
     """
     username = request.form.get('username').strip()
     password = request.form.get('password').strip()
-    print("登录的用户名和密码：",username,password)
     result = authenticate(username, password)
     if result.get_json()['status']:
         usertoken = result.get_json()['data']['token']
@@ -44,9 +43,10 @@ def authuser():
         -H "X-Auth-Token:$AUTHTOKEN" \
         -X GET https://10.10.10.1:5000/auth/user
     """
-    result = identify(request)
+    result = identify(request).get_json()  # 调用用户鉴权模块
+    print(result)
     if (result['status'] and result['data']):
-        redisdb = redis_connent()  # 连接redis 服务器
+        redisdb = redis_connent(8)  # 连接redis 服务器
         user = {}
         userid = result['data']
         for k in redisdb.hkeys(userid):

@@ -45,15 +45,15 @@ def before():
             url.endswith('.png') or url.endswith('.jpg') or url.endswith('.ico'):
         pass
     else:
-        result = identify(request)
-        if not result.get_json()['status']:
+        result = identify(request).get_json()
+        if not result['status']:
             return redirect('/login')
 
 #接受json数据请求
 @app.route('/aaa' , methods=['GET', 'POST'])
 def index():
     '''
-    @Examples
+    :Examples
     curl -i -k -H "Content-Type:application/json" \
     -X POST https://10.10.10.1:5000/aaa -d \
     '{
@@ -73,10 +73,8 @@ def index():
     '''
     if request.method == 'POST':
         a = request.get_data()
-        print(a)
         dict1 = json.loads(a)
-        print(dict1)
-        return json.dumps(dict1["data"])
+        return jsonify(dict1["data"])
     else:
         return '<h1>只接受post请求！</h1>'
 

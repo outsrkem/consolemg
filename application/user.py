@@ -59,7 +59,7 @@ def login():
 # 用户中心
 @user.route('/usercenter')
 def usercenter():
-    redisdb = redis_connent()  # 连接redis 服务器
+    redisdb = redis_connent(8)  # 连接redis 服务器
     userid = request.cookies.get('userid')
     context = {}
     for k in redisdb.hkeys(userid):
@@ -134,7 +134,7 @@ def chpasswd():
     '''
     pattern = r'^(?![A-Za-z0-9]+$)(?![a-z0-9\\W]+$)(?![A-Za-z\\W]+$)(?![A-Z0-9\\W]+$)^.{8,}$'
     if request.method == 'GET':
-        redisdb = redis_connent()  # 连接redis 服务器
+        redisdb = redis_connent(8)  # 连接redis 服务器
         userid = request.cookies.get('userid')
         context = {}
         for k in redisdb.hkeys(userid):
