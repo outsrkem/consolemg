@@ -11,7 +11,7 @@ export DB_DATABASE="blognote"
 python3 -m venv myvenv
 . myvenv/bin/activate
 pip install --upgrade pip
-pip install -r static/requirements.txt --use-feature=2020-resolver
+pip install -r static/requirements.txt
 
 # 启动flask
 gunicorn -c gunicorn_config.py main:app
