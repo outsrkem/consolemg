@@ -17,7 +17,7 @@ if not os.path.exists(LOG_DIR):
 if not os.path.exists(RUN_DIR):
     os.mkdir(RUN_DIR)
 
-bind = '0.0.0.0:443'
+bind = '0.0.0.0:5000'
 
 # 代码更新时将重启工作，默认为False。此设置用于开发，每当应用程序发生更改时，都会导致工作重新启动。
 reload = True
