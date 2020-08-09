@@ -86,8 +86,16 @@ def index():
 def foot_log(environ):
     print("访问接口--->", request.path)
     return environ
-
-
+'''
+from application.index import *
+app.register_blueprint(index)
+from application.user import *
+app.register_blueprint(user)
+from application.link import *
+app.register_blueprint(link)
+from application.authorized import *
+app.register_blueprint(auth)
+'''
 if __name__ == '__main__':
     from application.index import *
     app.register_blueprint(index)
