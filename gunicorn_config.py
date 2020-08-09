@@ -9,10 +9,13 @@ gunicorn -c gunicorn_config.py main:app
 # 获取工作目录
 BASE_DIR = os.path.abspath(os.curdir)
 LOG_DIR = os.path.join(BASE_DIR, "log")
+RUN_DIR = os.path.join(BASE_DIR, "run")
 
 if not os.path.exists(LOG_DIR):
     os.mkdir(LOG_DIR)
 
+if not os.path.exists(RUN_DIR):
+    os.mkdir(RUN_DIR)
 
 bind = '0.0.0.0:443'
 
@@ -27,7 +30,7 @@ workers = multiprocessing.cpu_count() * 2 + 1
 #gunicorn要切换到的目的工作目录
 chdir = BASE_DIR
 # pid文件
-pidfile = os.path.join(BASE_DIR, "flaskapp.pid")
+pidfile = os.path.join(RUN_DIR, "flaskapp.pid")
 #日志级别，这个日志级别指的是错误日志的级别，而访问日志的级别无法设置
 loglevel = 'debug'
 access_log_format = '%(t)s %(p)s %(h)s "%(r)s" %(s)s %(L)s %(b)s %(f)s" "%(a)s"'
