@@ -5,12 +5,14 @@ from redis import Redis
 import pymysql  # ImportError: No module named 'MySQLdb
 import os
 
+
 from flask_session import Session
 
 pymysql.install_as_MySQLdb()
 app = Flask(__name__, template_folder='templates', static_url_path='/', static_folder='static')
 app.config.from_object('settings')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@10.10.10.24:3306/consolemg?charset=utf8'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8' % (app.config['DB_USERNAME'],app.config['DB_PASSWORD'],
+                                                                                         app.config['DB_HOSTIP'],app.config['DB_PORT'],app.config['DB_DATABASE'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_SIZE'] = 100
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 2
@@ -76,14 +78,6 @@ def index():
     else:
         return '<h1>只接受post请求！</h1>'
 
-
-
-
-# 接口测试
-@app.after_request
-def foot_log(environ):
-    print("访问接口--->", request.path)
-    return environ
 '''
 from application.index import *
 app.register_blueprint(index)
@@ -108,5 +102,5 @@ if __name__ == '__main__':
     app.register_blueprint(auth)
 
     app.run(host=app.config['HOST'],
-            debug=app.config['DEBUG'],
-            ssl_context=("cert/www.pem", "cert/www-key.pem"))
+            debug=app.config['DEBUG']
+            )
