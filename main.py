@@ -101,6 +101,7 @@ if __name__ == '__main__':
     from application.authorized import *
     app.register_blueprint(auth)
 
-    app.run(host=app.config['HOST'],
-            debug=app.config['DEBUG']
+    app.run(host=app.config['APP_HOST'],
+            port=app.config['APP_PORT'],
+            debug=app.config['APP_DEBUG']
             )
